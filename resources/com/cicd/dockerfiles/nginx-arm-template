@@ -1,0 +1,6 @@
+#Dockerfile
+FROM registry.cn-hangzhou.aliyuncs.com/openq/nginx:latest
+
+RUN  rm -rf  /usr/share/nginx/html/*
+ADD  app.tar /usr/share/nginx/html/
+RUN  chown nginx:nginx -R /usr/share/nginx/html/

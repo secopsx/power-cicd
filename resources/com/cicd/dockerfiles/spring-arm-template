@@ -1,0 +1,17 @@
+#Dockerfile
+FROM registry.cn-hangzhou.aliyuncs.com/openq/openjdk:8u342-jdk
+# 将应用包拷贝进去
+# 应用包app.tar 解压出来就是一个目录：
+# app.tar ---> ${app_name}
+#                   |----{app_name}-{app_version}.jar
+#                   |----other_dir/
+#                   |----other_file
+
+USER root
+ADD  app.tar /data/apps/
+COPY ./startup.sh /usr/bin/startup.sh
+RUN  chmod +x /usr/bin/startup.sh && \
+     mkdir -p /data/logs/                     && \
+     touch /data/logs/startup.log             && \
+     chmod 777 /data/logs/startup.log
+ENTRYPOINT /usr/bin/startup.sh

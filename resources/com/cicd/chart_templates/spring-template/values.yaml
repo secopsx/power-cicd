@@ -1,0 +1,42 @@
+# 这里定义的所有变量都可以在 helm install 时 通过--set 重置，
+# 因此这里的默认值，不代表容器POD 最终运行的情况
+
+# 实例副本数量，默认 1
+REPLICAS: 1
+
+DEPLOY_ENV: "${DEPLOY_ENV}"
+
+# 业务端口
+APP_PORT: 8080
+APP_HEALTH_CHECK_PATH: "${APP_HEALTH_CHECK_PATH}"
+
+APP_RUNTIME_PROFILE: "${DEPLOY_ENV}"
+
+# CPU 限制
+CPU_LIMIT: 1
+CPU_REQUEST: 100m
+
+# 内存限制
+# 注意，这是POD 整体的限制，
+# 对于java ，你需要考虑堆外内存，比如加载文件所需要的空间
+# 因此java 的xmx 应该小于这里的 LIMIT
+RAM_LIMIT: 1Gi
+RAM_REQUEST: 300Mi
+
+# 镜像相关配置
+APP_IMAGE: "${APP_IMAGE}"
+IMAGE_PULL_POLICY: "Always"
+IMAGE_PULL_SECRET: "${IMAGE_PULL_SECRET}"
+
+APP_VM_OPTS: ""
+APP_OPTS: ""
+
+# 迭代策略，如果为true，则是重建，否则为滚动升级，25%
+UPDATE_RECREATE: false
+
+# 优雅停止时间
+TERMINATION_GRACE_PERIOD_SECONDS: 100
+
+APP_GROUP_NAME: "${APP_GROUP_NAME}"
+APP_PROJECT_NAME: "${APP_PROJECT_NAME}"
+APP_NAME: "${APP_NAME}"

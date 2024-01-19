@@ -1,0 +1,43 @@
+{
+    "envConfigurations": {
+        "harborAddress": "harbor..com",
+        "harborProject": "dev",
+        "helmRepoAlias": "local_dev",
+        "imagePullSecret": "default-pull-secret",
+        "kuboardAddress": "http://192.168.10.103:24080"
+    },
+    "defaultAppConfigurations": {
+        "environmentVariables":{
+            "APOLLO_ADDRESS" :"http://apollo-configservice-0.apollo-configservice.ns.svc.cluster.local:8080"
+        },
+        "k8sNamespace": "dev",
+        "k8sKubeconfig": "local_dev",
+        "appReplicas": 2,
+        "cpuLimit": "200m",
+        "cpuRequest":"100m",
+        "ramLimit": "200Mi",
+        "ramRequest": "100Mi",
+        "appPort": "8080",
+        "updateRecreate": "false",
+        "autoDeploy": false,
+        "vmOptions": "",
+        "appOptions": "",
+        "_deployType":"需要支持多种部署方式： HELM|POD|DOCKER|JAR|BINARY|NGINX",
+        "deployType":"HELM"
+    },
+    "name": "dev",
+    "appConfigurations":[
+        {
+            "group": "ops",
+            "project": "cicd-test-project",
+            "name": "cicd-test-project",
+            "autoDeploy": true
+        },
+        {
+            "group": "ops",
+            "project": "cicd-test-project",
+            "name": "another_sub_app",
+            "autoDeploy": true
+        }
+    ]
+}

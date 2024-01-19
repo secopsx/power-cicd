@@ -1,0 +1,14 @@
+apiVersion: v2
+name: "${APP_NAME,,}"
+type: application
+version: "${APP_CHART_VERSION}"
+appVersion: "${APP_VERSION}"
+annotations:
+  BuildProfile: "${DEPLOY_ENV}"
+  APPNameLower: "${APP_NAME,,}"
+  APPGroup: "${APP_GROUP_NAME}"
+  BuildTime: "${APP_BUILD_TIME}"
+  Changelog: "${APP_COMMIT_MESSAGE}"
+  CodeBranch: "${APP_CODE_BRANCH}"
+  CommitSHA: "${APP_COMMIT_SHA}"
+  CommitSHAShort: "${APP_COMMIT_SHA_SHORT}"

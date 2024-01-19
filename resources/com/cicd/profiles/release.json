@@ -1,0 +1,39 @@
+{
+    "envConfigurations": {
+        "harborAddress": "harbor..com",
+        "harborProject": "release",
+        "helmRepoAlias": "local_release",
+        "imagePullSecret": "default-pull-secret",
+        "kuboardAddress": "http://192.168.10.103:24080"
+    },
+    "defaultAppConfigurations": {
+        "environmentVariables":{
+            "APOLLO_ADDRESS" :""
+        },
+        "k8sNamespace": "test",
+        "k8sKubeconfig": "local_test",
+        "appReplicas": 2,
+        "cpuLimit": "200m",
+        "cpuRequest":"100m",
+        "ramLimit": "200Mi",
+        "ramRequest": "100Mi",
+        "autoDeploy": false,
+        "runtimeOptions": "",
+        "appOptions": ""
+    },
+    "name": "release",
+    "appConfigurations":[
+        {
+            "group": "ops",
+            "project": "cicd-test-project",
+            "name": "cicd-test-project",
+            "autoDeploy": true
+        },
+        {
+            "group": "ops",
+            "project": "cicd-test-project",
+            "name": "another_sub_app",
+            "autoDeploy": true
+        }
+    ]
+}

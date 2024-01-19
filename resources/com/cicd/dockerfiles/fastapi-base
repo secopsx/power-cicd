@@ -1,0 +1,28 @@
+FROM  centos:8
+RUN   sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Linux-* && \
+      sed -i 's|#baseurl=http://mirror|baseurl=http://vault|g' /etc/yum.repos.d/CentOS-Linux-*
+
+RUN   yum install -y  python3.8 shadow-utils bind-utils yum-utils        \
+                      tcpdump     wget         net-tools                 \
+                      tar         sudo         sysstat    procps-ng      \
+                      telnet      iputils      less       vim            \
+                      curl        systemd      iotop      unzip
+RUN   source /etc/profile && \
+      pip3 install requests==2.22.0 dumb-init uvicorn fastapi pydantic  \
+                   pydantic[email] alembic Authlib starlette-session    \
+                   aiosqlite SQLAlchemy==1.4.46 werkzeug Jinja2==3.0.1  \
+                   aiomysql makefun passlib ldap3 fastapi-pagination    \
+                   aioredis python-jose \
+            -i https://pypi.tuna.tsinghua.edu.cn/simple some-package
+RUN   mkdir -p  /data/{apps,logs,packages,upload_tmp}                 && \
+      echo "==== Start to add user: appuser ===="                     && \
+      /usr/sbin/groupadd appuser                                      && \
+      /usr/sbin/useradd -g appuser -m appuser                         && \
+      echo "source /etc/profile" >> /home/appuser/.bashrc             && \
+      echo "==== Init app runtime environment ===="                   && \
+      chown -R  appuser.appuser /data/*                               && \
+      yum clean all                                                   && \
+      rm  -rf /var/cache/yum 
+
+USER  appuser
+ENTRYPOINT bash

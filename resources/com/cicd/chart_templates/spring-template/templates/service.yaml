@@ -1,0 +1,19 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: {{ .Chart.Annotations.APPNameLower }}
+  name: svc-clusterip-{{ .Chart.Annotations.APPNameLower }}
+spec:
+  ports:
+  - name: traffic-port
+    port: {{ .Values.APP_PORT }}
+    protocol: TCP
+    targetPort: {{ .Values.APP_PORT }}
+  selector:
+    app: {{ .Chart.Annotations.APPNameLower }}
+  sessionAffinity: None
+  type: ClusterIP
+
+

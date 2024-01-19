@@ -1,0 +1,45 @@
+FROM  centos:7
+RUN   curl -O https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
+      rpm -ivh epel-release-latest-7.noarch.rpm                       && \
+      yum install -y  shadow-utils python3-pip bind-utils yum-utils      \
+                      tcpdump      wget        net-tools  python3        \
+                      tar          sudo        sysstat    procps-ng      \
+                      telnet       iputils     less       vim            \
+                      curl         systemd     iotop      unzip       && \
+      pip3 install Jinja2==2.11.1                                     && \
+      pip3 install loguru==0.3.2                                      && \
+      pip3 install requests==2.22.0
+#
+COPY  ./jdk-8u333-linux-x64.tar.gz /tmp/jdk-8u333-linux-x64.tar.gz
+COPY  ./arthas.zip /tmp/arthas.zip
+ADD   ./dumb-init /usr/bin/dumb-init
+ADD   jar-startup.sh /jar-startup.sh
+RUN   mkdir -p  /data/{apps,logs,packages,upload_tmp,arthas}          && \
+      echo "==== Start to install JDK ===="                           && \
+      tar  -xf /tmp/jdk-8u333-linux-x64.tar.gz -C /opt                && \
+      ln   -s /opt/jdk1.8.0_333 /opt/jdk                              && \
+      echo 'JAVA_HOME=/opt/jdk'                       >> /etc/profile && \
+      echo 'JRE_HOME=/opt/jdk/jre'                    >> /etc/profile && \
+      echo 'PATH=$PATH:$JAVA_HOME/bin:$JRE_HOME/bin'  >> /etc/profile && \
+      echo 'CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar:$JRE_HOME/lib' >> /etc/profile && \
+      echo 'export JAVA_HOME JRE_HOME PATH CLASSPATH' >> /etc/profile && \
+      source /etc/profile                                             && \
+      echo "JAVA_HOME: "$JAVA_HOME" JRE_HOME: "$JRE_HOME              && \
+      java -version                                                   && \
+      rm -f /tmp/jdk-8u333-linux-x64.tar.gz                           && \
+      echo "==== Start to install arthas ===="                        && \
+      mv /tmp/arthas.zip /data/arthas                                 && \
+      cd /data/arthas && unzip arthas.zip && rm -f arthas.zip         && \
+      echo "==== Start to install dumb-init ===="                     && \
+      chmod +x /usr/bin/dumb-init                                     && \
+      echo "==== Start to add user: appuser ===="                     && \
+      /usr/sbin/groupadd appuser                                      && \
+      /usr/sbin/useradd  -g appuser -m appuser                        && \
+      echo "source /etc/profile" >> /home/appuser/.bashrc             && \
+      echo "==== Init app runtime environment ===="                   && \
+      chown -R  appuser.appuser /data/*                               && \
+      chmod +x  /jar-startup.sh                                       && \
+      rm    -rf /var/cache/yum 
+
+USER  appuser
+ENTRYPOINT /jar-startup.sh

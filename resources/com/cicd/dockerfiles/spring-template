@@ -1,0 +1,31 @@
+#Dockerfile
+FROM spring:1.0.3
+# 将应用包拷贝进去
+# 应用包app.tar 解压出来就是一个目录：
+# app.tar ---> ${app_name}
+#                   |----{app_name}-{app_version}.jar
+#                   |----other_dir/
+#                   |----other_file
+
+USER root
+RUN  rm -rf  /data/apps/*
+ADD  app.tar /data/apps/
+COPY ./startup.sh /usr/bin/startup.sh
+RUN  chown -R appuser.appuser /data/apps/*  &&               \
+     chmod +x /usr/bin/startup.sh
+ENV  LANG=zh_CN.UTF-8                                     \
+     LC_CTYPE="zh_CN.UTF-8"                              \
+     LC_NUMERIC="zh_CN.UTF-8"                            \
+     LC_TIME="zh_CN.UTF-8"                               \
+     LC_COLLATE="zh_CN.UTF-8"                            \
+     LC_MONETARY="zh_CN.UTF-8"                           \
+     LC_MESSAGES="zh_CN.UTF-8"                           \
+     LC_PAPER="zh_CN.UTF-8"                              \
+     LC_NAME="zh_CN.UTF-8"                               \
+     LC_ADDRESS="zh_CN.UTF-8"                            \
+     LC_TELEPHONE="zh_CN.UTF-8"                          \
+     LC_MEASUREMENT="zh_CN.UTF-8"                        \
+     LC_IDENTIFICATION="zh_CN.UTF-8"                           
+
+USER  appuser
+ENTRYPOINT /usr/bin/startup.sh

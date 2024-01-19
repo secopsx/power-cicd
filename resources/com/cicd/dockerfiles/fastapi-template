@@ -1,0 +1,35 @@
+#Dockerfile
+FROM fastapi-base:1.0.0-centos8
+# 将应用包拷贝进去
+# 应用包app.tar 解压出来就是一个目录：
+# app.tar ---> ${app_name}
+#                   |----server.py
+#                   |----other_dir/
+#                   |----other_files
+
+USER root
+RUN  rm -rf  /data/apps/*
+ADD  app.tar /data/apps/
+RUN  cd /data/apps/&&cd `ls -1`&&tar -xf `ls -1`
+COPY ./startup.sh /usr/bin/startup.sh
+RUN  chmod +x /usr/bin/startup.sh
+ENV  LANG=C.UTF-8                                            \
+     LANGUAGE=C.UTF-8                                        \
+     LC_ALL=C.UTF-8                                          \
+     LANG=en_US.UTF-8                                        \
+     LC_CTYPE=en_US.UTF-8                                    \
+     LC_NUMERIC=en_US.UTF-8                                  \
+     LC_TIME=en_US.UTF-8                                     \
+     LC_COLLATE=en_US.UTF-8                                  \
+     LC_MONETARY=en_US.UTF-8                                 \
+     LC_MESSAGES=en_US.UTF-8                                 \
+     LC_PAPER=en_US.UTF-8                                    \
+     LC_NAME=en_US.UTF-8                                     \
+     LC_ADDRESS=en_US.UTF-8                                  \
+     LC_TELEPHONE=en_US.UTF-8                                \
+     LC_MEASUREMENT=en_US.UTF-8                              \
+     LC_IDENTIFICATION=en_US.UTF-8                           \
+     PYTHONUNBUFFERED=1
+
+USER  appuser
+ENTRYPOINT /usr/bin/startup.sh

@@ -1,0 +1,124 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Annotations.APPNameLower }}
+  labels:
+    app: {{ .Chart.Annotations.APPNameLower }}
+    app_name: {{ .Chart.Name }}
+    app_port: "{{ .Values.APP_PORT }}"
+    app_version: {{ .Chart.AppVersion }}
+    app_group: "{{ .Chart.Annotations.APPGroup }}"
+spec:
+  replicas: {{ .Values.REPLICAS }}
+  selector:
+    matchLabels:
+        app: {{ .Chart.Annotations.APPNameLower }}
+  strategy:
+    {{ if .Values.UPDATE_RECREATE }}
+    type: Recreate
+    {{ else }}
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 100%
+      maxUnavailable: 50%
+    {{ end }}
+  template:
+    metadata:
+      annotations:
+        code-branch: "{{     .Chart.Annotations.CodeBranch }}"
+        code-commit-sha: "{{ .Chart.Annotations.CommitSHA  }}"
+        change-log: "{{      .Chart.Annotations.Changelog  }}"
+        build-time: "{{      .Chart.Annotations.BuildTime  }}"
+      labels:
+          app: {{         .Chart.Annotations.APPNameLower }}
+          app_version: {{ .Chart.AppVersion               }}
+          app_group: "{{  .Chart.Annotations.APPGroup     }}"
+          app_name: {{    .Chart.Annotations.APPNameLower }}
+          app_port: "{{   .Values.APP_PORT        }}"
+    spec:
+      imagePullSecrets:
+        - name: {{ .Values.IMAGE_PULL_SECRET }}
+      containers:
+        - name: app
+          image: {{ .Values.APP_IMAGE }}
+          # {{ if .Values.CD_APP_CMD }}
+          # command: {{ .Values.CD_APP_CMD      }}
+          # args: {{    .Values.CD_APP_CMD_ARGS }}
+          # {{ end }}
+          imagePullPolicy: {{ .Values.IMAGE_PULL_POLICY }}
+          env:
+{{- range .Values.additionalEnv }}
+            - name: {{ .name }}
+              value: "{{ .value }}"
+{{- end }}
+            - name: APP_RUNTIME_PROFILE
+              value: "{{ .Values.APP_RUNTIME_PROFILE }}"
+            - name: APP_GROUP_NAME
+              value: "{{ .Values.APP_GROUP_NAME }}"
+            - name: APP_PROJECT
+              value: "{{ .Values.APP_PROJECT_NAME }}"
+            - name: APP_NAME
+              value: "{{ .Values.APP_NAME }}"
+            - name: APP_JAVA_OPTS
+              value: "{{ .Values.APP_VM_OPTS }}"
+            - name: APP_OPTS
+              value: "{{ .Values.APP_OPTS }}"
+            - name: APP_DELAY_EXIT
+              value: "0"
+            - name: APP_VERSION
+              value: "{{ .Chart.AppVersion }}"
+            - name: TZ
+              value: Asia/Shanghai
+            - name: SVC_CLUSTER_IP
+              value: "svc-clusterip-{{ .Chart.Annotations.APPNameLower }}"
+            - name: K8S_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: APP_WORKER_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: APP_PORT
+              value: "{{ .Values.APP_PORT }}"
+          ports:
+            - name: traffic-port
+              containerPort: {{ .Values.APP_PORT }}
+              protocol: TCP
+          #livenessProbe:
+          #  httpGet:
+          #    path: {{ .Values.CD_APP_HEALTH_CHECK_PATH }}
+          #    port: traffic-port
+          #  initialDelaySeconds: 10
+          #  periodSeconds: 10
+          #  failureThreshold: 60
+          #readinessProbe:
+          #  httpGet:
+          #    path: {{ .Values.CD_APP_HEALTH_CHECK_PATH }}
+          #    port: traffic-port
+          #  initialDelaySeconds: 10
+          #  periodSeconds: 10
+          #  failureThreshold: 60
+          livenessProbe:
+            failureThreshold: 20
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            tcpSocket:
+              port: {{ .Values.APP_PORT }}
+          readinessProbe:
+            failureThreshold: 20
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            tcpSocket:
+              port: {{ .Values.APP_PORT }}
+          resources: 
+            limits:
+              cpu: {{    .Values.CPU_LIMIT   }}
+              memory: {{ .Values.RAM_LIMIT   }}
+            requests:
+              cpu: {{    .Values.CPU_REQUEST }}
+              memory: {{ .Values.RAM_REQUEST }}
+      dnsPolicy: ClusterFirst
+      terminationGracePeriodSeconds: {{ .Values.TERMINATION_GRACE_PERIOD_SECONDS }}
+      restartPolicy: Always
+      schedulerName: default-scheduler

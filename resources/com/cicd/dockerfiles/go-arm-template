@@ -1,0 +1,31 @@
+#Dockerfile
+FROM registry.cn-hangzhou.aliyuncs.com/openq/centos:7
+# 将应用包拷贝进去
+# 应用包app.tar 解压出来就是一个目录：
+# app.tar ---> ${app_name}
+#                   |----{app_name}-{app_version}.jar
+#                   |----other_dir/
+#                   |----other_file
+
+USER root
+ADD  app.tar /data/apps/
+COPY ./startup.sh /usr/bin/startup.sh
+RUN  chmod +x /usr/bin/startup.sh
+ENV  LANG=C.UTF-8                                            \
+     LANGUAGE=C.UTF-8                                        \
+     LC_ALL=C.UTF-8                                          \
+     LANG=en_US.UTF-8                                        \
+     LC_CTYPE=en_US.UTF-8                                    \
+     LC_NUMERIC=en_US.UTF-8                                  \
+     LC_TIME=en_US.UTF-8                                     \
+     LC_COLLATE=en_US.UTF-8                                  \
+     LC_MONETARY=en_US.UTF-8                                 \
+     LC_MESSAGES=en_US.UTF-8                                 \
+     LC_PAPER=en_US.UTF-8                                    \
+     LC_NAME=en_US.UTF-8                                     \
+     LC_ADDRESS=en_US.UTF-8                                  \
+     LC_TELEPHONE=en_US.UTF-8                                \
+     LC_MEASUREMENT=en_US.UTF-8                              \
+     LC_IDENTIFICATION=en_US.UTF-8
+
+ENTRYPOINT /usr/bin/startup.sh
